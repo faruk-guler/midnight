@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (lastUpdatedEl && data.last_updated) {
                 const dateObj = new Date(data.last_updated);
-                lastUpdatedEl.textContent = `Last Sync: ${dateObj.toLocaleString('en-US')}`;
+                lastUpdatedEl.textContent = `Last Sync: ${dateObj.toLocaleString('en-US', { hour12: false })}`;
             }
 
             renderCVEs();

@@ -24,12 +24,14 @@
 
 | Source | Type | Information Provided |
 | :--- | :--- | :--- |
-| **NVD (NIST)** | API v2.0 | Base CVSS scores, official descriptions, and dates. |
-| **CISA KEV** | JSON Feed | Known Exploited Vulnerabilities (Active in the wild). |
-| **Exploit-DB** | CSV Feed | Available public exploit code and local/remote status. |
-| **GitHub / OSV** | API | Security advisories for open-source ecosystems. |
-| **ZDI / CERT-CC** | RSS | Zero-day advisories and vendor-neutral reporting. |
-| **EPSS (FIRST)** | API | Probability of exploitation in the next 30 days. |
+| **NVD (NIST)** | API v2.0 | Resmi CVE veritabanı, CVSS skorları ve teknik açıklamalar. |
+| **CISA KEV** | JSON Feed | Aktif olarak sömürülen (Known Exploited) zafiyet listesi. |
+| **Exploit-DB** | CSV Feed | Mevcut public exploit kodları ve saldırı türleri. |
+| **GitHub / OSV** | API | Açık kaynak ekosistemine ait güvenlik duyuruları (GHSA). |
+| **EPSS (FIRST)** | API | Zafiyetlerin gelecek 30 gün içindeki sömürülme olasılığı. |
+| **ZDI** | RSS | Zero Day Initiative tarafından yayınlanan sıfır gün duyuruları. |
+| **Google Project Zero** | RSS | Google'ın güvenlik ekibi tarafından tespit edilen kritik zafiyetler. |
+| **CERT-CC** | RSS | Yazılım zafiyetleri ve satıcı duyuruları hakkında teknik raporlar. |
 
 ## ⚙️ Setup & Installation
 
