@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Midnight | Threat Intelligence</title>
-    <meta name="description" content="Midnight: Real-time tracking of zero-day vulnerabilities and global threat intelligence.">
+    <meta name="description"
+        content="Midnight: Real-time tracking of zero-day vulnerabilities and global threat intelligence.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="background-effects">
         <div class="glow blob-1"></div>
@@ -25,21 +30,29 @@
                     <img src="image/midnight-logo.png" alt="Midnight Logo" class="app-logo">
                     <h1 style="display: flex; flex-direction: column; line-height: 1;">
                         <span style="font-size: 1.8rem; font-weight: 800; letter-spacing: 1px;">MIDNIGHT</span>
-                        <span style="font-size: 0.75rem; color: #8b5cf6; letter-spacing: 3px; margin-top: 2px;">THREAT INTELLIGENCE</span>
+                        <span style="font-size: 0.75rem; color: #8b5cf6; letter-spacing: 3px; margin-top: 2px;">THREAT
+                            INTELLIGENCE</span>
                     </h1>
                 </a>
-                
+
                 <nav class="nav-tabs">
                     <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
                     <button class="nav-btn" data-tab="about">About</button>
                 </nav>
 
-                <div class="status-bar" style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; justify-content: center;">
+                <div class="status-bar"
+                    style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; justify-content: center;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <div style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; box-shadow: 0 0 10px #22c55e;"></div>
-                        <span id="realtime-clock" style="font-family: 'Courier New', Courier, monospace; color: #e2e8f0; font-size: 0.9rem; letter-spacing: 0.5px;">Loading time...</span>
+                        <div
+                            style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; box-shadow: 0 0 10px #22c55e;">
+                        </div>
+                        <span id="realtime-clock"
+                            style="font-family: 'Courier New', Courier, monospace; color: #e2e8f0; font-size: 0.9rem; letter-spacing: 0.5px;">Loading
+                            time...</span>
                     </div>
-                    <span id="last-updated-text" style="font-family: 'Courier New', Courier, monospace; color: #64748b; font-size: 0.7rem; letter-spacing: 0.5px;">Syncing data...</span>
+                    <span id="last-updated-text"
+                        style="font-family: 'Courier New', Courier, monospace; color: #64748b; font-size: 0.7rem; letter-spacing: 0.5px;">Syncing
+                        data...</span>
                 </div>
             </div>
         </header>
@@ -70,29 +83,45 @@
             </div>
 
             <div id="feed-container" style="margin-top: 0.5rem;">
-                <div class="feed-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2 style="font-family: 'Courier New', Courier, monospace; color: #cbd5e1; font-size: 1.1rem; letter-spacing: 1px; font-weight: normal; margin: 0;">// CVE THREAT FEED</h2>
-                    <a href="cves.json" download="midnight_cves.json" style="text-decoration: none; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 0.5rem 1rem; border-radius: 4px; font-family: 'Courier New', Courier, monospace; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;"><i class="ph ph-download-simple"></i> JSON EXPORT</a>
+                <div class="feed-header"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2
+                        style="font-family: 'Courier New', Courier, monospace; color: #cbd5e1; font-size: 1.1rem; letter-spacing: 1px; font-weight: normal; margin: 0;">
+                        // CVE THREAT FEED</h2>
+                    <a href="cves.json" download="midnight_cves.json"
+                        style="text-decoration: none; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 0.5rem 1rem; border-radius: 4px; font-family: 'Courier New', Courier, monospace; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;"><i
+                            class="ph ph-download-simple"></i> JSON EXPORT</a>
                 </div>
-                
-                <div class="controls glass-panel" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 41, 59, 0.8); border-radius: 8px; margin-bottom: 1rem; padding: 1rem;">
+
+                <div class="controls glass-panel"
+                    style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 41, 59, 0.8); border-radius: 8px; margin-bottom: 1rem; padding: 1rem;">
                     <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                         <div class="search-box" style="flex: 1; min-width: 300px; position: relative;">
-                            <input type="text" id="search-input" placeholder="Search by CVE ID, vendor, product or keyword..." style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 0.8rem 1rem; color: #e2e8f0; font-family: 'Courier New', Courier, monospace; outline: none;">
+                            <input type="text" id="search-input"
+                                placeholder="Search by CVE ID, vendor, product or keyword..."
+                                style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 0.8rem 1rem; color: #e2e8f0; font-family: 'Courier New', Courier, monospace; outline: none;">
                         </div>
                         <div class="filter-group" style="display: flex; gap: 0.5rem; align-items: center;">
-                            <button class="filter-btn active" data-severity="all" style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #e2e8f0; cursor: pointer;">ALL</button>
-                            <button class="filter-btn" data-severity="CRITICAL" style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.1); color: #fda4af; cursor: pointer;">CRITICAL</button>
-                            <button class="filter-btn" data-severity="HIGH" style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(249, 115, 22, 0.3); background: rgba(249, 115, 22, 0.1); color: #fdba74; cursor: pointer;">HIGH</button>
-                            <button id="clear-search-btn" style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #94a3b8; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;"><i class="ph ph-x-circle"></i> CLEAR</button>
+                            <button class="filter-btn active" data-severity="all"
+                                style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #e2e8f0; cursor: pointer;">ALL</button>
+                            <button class="filter-btn" data-severity="CRITICAL"
+                                style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.1); color: #fda4af; cursor: pointer;">CRITICAL</button>
+                            <button class="filter-btn" data-severity="HIGH"
+                                style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(249, 115, 22, 0.3); background: rgba(249, 115, 22, 0.1); color: #fdba74; cursor: pointer;">HIGH</button>
+                            <button id="clear-search-btn"
+                                style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #94a3b8; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;"><i
+                                    class="ph ph-x-circle"></i> CLEAR</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="table-container" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(30, 41, 59, 0.8); border-radius: 8px; overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-family: 'Courier New', Courier, monospace; font-size: 0.85rem;">
+                <div class="table-container"
+                    style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(30, 41, 59, 0.8); border-radius: 8px; overflow-x: auto;">
+                    <table
+                        style="width: 100%; border-collapse: collapse; text-align: left; font-family: 'Courier New', Courier, monospace; font-size: 0.85rem;">
                         <thead>
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">
+                            <tr
+                                style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">
                                 <th style="padding: 1rem; font-weight: normal; width: 60px;">ATS ▾</th>
                                 <th style="padding: 1rem; font-weight: normal; width: 140px;">CVE ID</th>
                                 <th style="padding: 1rem; font-weight: normal;">Vulnerability</th>
@@ -104,62 +133,98 @@
                             </tr>
                         </thead>
                         <tbody id="cve-table-body">
-                            <tr><td colspan="9" style="text-align:center; padding:2rem; color:#64748b;">Fetching intelligence...</td></tr>
+                            <tr>
+                                <td colspan="9" style="text-align:center; padding:2rem; color:#64748b;">Fetching
+                                    intelligence...</td>
+                            </tr>
                         </tbody>
                     </table>
-                    <div id="load-more-container" style="text-align: center; padding: 2rem; border-top: 1px solid rgba(255,255,255,0.05); display: none;">
-                        <button id="load-more-btn" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 0.8rem 2.5rem; border-radius: 8px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 600; transition: all 0.2s;">LOAD MORE VULNERABILITIES</button>
+                    <div id="load-more-container"
+                        style="text-align: center; padding: 2rem; border-top: 1px solid rgba(255,255,255,0.05); display: none;">
+                        <button id="load-more-btn"
+                            style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 0.8rem 2.5rem; border-radius: 8px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 600; transition: all 0.2s;">LOAD
+                            MORE VULNERABILITIES</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="about-section" style="display: none;" class="glass-panel">
-            <div style="padding: 3rem 2rem; color: #e2e8f0; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 4rem; align-items: center;">
-                
+            <div
+                style="padding: 3rem 2rem; color: #e2e8f0; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 4rem; align-items: center;">
+
                 <!-- Developer Profile -->
-                <div style="text-align: center; background: rgba(0,0,0,0.25); padding: 3rem 2rem; border-radius: 16px; border: 1px solid rgba(139, 92, 246, 0.2); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
-                    <div style="width: 120px; height: 120px; background: rgba(139, 92, 246, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; border: 2px solid rgba(139, 92, 246, 0.5); box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);">
+                <div
+                    style="text-align: center; background: rgba(0,0,0,0.25); padding: 3rem 2rem; border-radius: 16px; border: 1px solid rgba(139, 92, 246, 0.2); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+                    <div
+                        style="width: 120px; height: 120px; background: rgba(139, 92, 246, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; border: 2px solid rgba(139, 92, 246, 0.5); box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);">
                         <i class="ph ph-user-focus" style="font-size: 5rem; color: #c4b5fd;"></i>
                     </div>
-                    <h2 style="color: #fff; margin-bottom: 0.5rem; font-size: 2.2rem; font-family: 'Outfit', sans-serif;">Faruk Güler</h2>
-                    <p style="font-size: 1.1rem; color: #a78bfa; margin-bottom: 2.5rem; font-weight: 500;">ITSysadmin</p>
-                    
+                    <h2
+                        style="color: #fff; margin-bottom: 0.5rem; font-size: 2.2rem; font-family: 'Outfit', sans-serif;">
+                        Faruk Güler</h2>
+                    <p style="font-size: 1.1rem; color: #a78bfa; margin-bottom: 2.5rem; font-weight: 500;">Cyber
+                        Security Researcher & ITSysadmin</p>
+
                     <div style="display: flex; flex-direction: column; gap: 1rem;">
-                        <a href="https://www.farukguler.com" target="_blank" style="text-decoration: none; color: #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 1.1rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3); transition: all 0.3s ease;">
+                        <a href="https://www.farukguler.com" target="_blank"
+                            style="text-decoration: none; color: #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 1.1rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3); transition: all 0.3s ease;">
                             <i class="ph ph-globe" style="font-size: 1.3rem; color: #60a5fa;"></i> www.farukguler.com
                         </a>
-                        <a href="https://github.com/faruk-guler" target="_blank" style="text-decoration: none; color: #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 1.1rem; padding: 1rem; background: rgba(167, 139, 250, 0.1); border-radius: 12px; border: 1px solid rgba(167, 139, 250, 0.3); transition: all 0.3s ease;">
-                            <i class="ph ph-github-logo" style="font-size: 1.3rem; color: #c4b5fd;"></i> github.com/faruk-guler
+                        <a href="https://github.com/faruk-guler" target="_blank"
+                            style="text-decoration: none; color: #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 1.1rem; padding: 1rem; background: rgba(167, 139, 250, 0.1); border-radius: 12px; border: 1px solid rgba(167, 139, 250, 0.3); transition: all 0.3s ease;">
+                            <i class="ph ph-github-logo" style="font-size: 1.3rem; color: #c4b5fd;"></i>
+                            github.com/faruk-guler
                         </a>
                     </div>
                 </div>
 
                 <!-- Tool Features -->
                 <div>
-                    <h2 style="color: #c4b5fd; margin-bottom: 1.5rem; font-size: 2.2rem; border-bottom: 1px solid rgba(139, 92, 246, 0.3); padding-bottom: 1rem;">Midnight CTI <span style="font-size: 1.2rem; color: #94a3b8; font-weight: 400;">v2.2 Elite</span></h2>
-                    <p style="font-size: 1.1rem; line-height: 1.7; margin-bottom: 2.5rem; color: #cbd5e1;">This platform unifies global cyber threat intelligence (CTI) into a single dashboard, allowing you to instantly analyze the most critical vulnerabilities.</p>
-                    
+                    <h2
+                        style="color: #c4b5fd; margin-bottom: 1.5rem; font-size: 2.2rem; border-bottom: 1px solid rgba(139, 92, 246, 0.3); padding-bottom: 1rem;">
+                        Midnight CTI <span style="font-size: 1.2rem; color: #94a3b8; font-weight: 400;">v2.2
+                            Elite</span></h2>
+                    <p style="font-size: 1.1rem; line-height: 1.7; margin-bottom: 2.5rem; color: #cbd5e1;">This platform
+                        unifies global cyber threat intelligence (CTI) into a single dashboard, allowing you to
+                        instantly analyze the most critical vulnerabilities.</p>
+
                     <ul style="list-style-type: none; padding: 0; display: flex; flex-direction: column; gap: 1.5rem;">
                         <li style="display: flex; align-items: flex-start; gap: 1.2rem;">
-                            <div style="background: rgba(244, 63, 94, 0.15); padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(244, 63, 94, 0.3); margin-top: 0.2rem;"><i class="ph ph-target" style="color: #fb7185; font-size: 1.6rem;"></i></div>
+                            <div
+                                style="background: rgba(244, 63, 94, 0.15); padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(244, 63, 94, 0.3); margin-top: 0.2rem;">
+                                <i class="ph ph-target" style="color: #fb7185; font-size: 1.6rem;"></i></div>
                             <div>
-                                <strong style="font-size: 1.15rem; color: #fff;">MTS (Midnight Threat Score)</strong><br>
-                                <span style="opacity: 0.7; font-size: 0.95rem; line-height: 1.5; display: inline-block; margin-top: 0.3rem;">A custom algorithm that blends CVSS, EPSS, and social media trends to generate a risk score between 0-100.</span>
+                                <strong style="font-size: 1.15rem; color: #fff;">MTS (Midnight Threat
+                                    Score)</strong><br>
+                                <span
+                                    style="opacity: 0.7; font-size: 0.95rem; line-height: 1.5; display: inline-block; margin-top: 0.3rem;">A
+                                    custom algorithm that blends CVSS, EPSS, and social media trends to generate a risk
+                                    score between 0-100.</span>
                             </div>
                         </li>
                         <li style="display: flex; align-items: flex-start; gap: 1.2rem;">
-                            <div style="background: rgba(167, 139, 250, 0.15); padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(167, 139, 250, 0.3); margin-top: 0.2rem;"><i class="ph ph-robot" style="color: #c4b5fd; font-size: 1.6rem;"></i></div>
+                            <div
+                                style="background: rgba(167, 139, 250, 0.15); padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(167, 139, 250, 0.3); margin-top: 0.2rem;">
+                                <i class="ph ph-robot" style="color: #c4b5fd; font-size: 1.6rem;"></i></div>
                             <div>
                                 <strong style="font-size: 1.15rem; color: #fff;">Qwen AI Integration</strong><br>
-                                <span style="opacity: 0.7; font-size: 0.95rem; line-height: 1.5; display: inline-block; margin-top: 0.3rem;">When a vulnerability is clicked, the Qwen AI model instantly provides emergency patching steps and isolation recommendations.</span>
+                                <span
+                                    style="opacity: 0.7; font-size: 0.95rem; line-height: 1.5; display: inline-block; margin-top: 0.3rem;">When
+                                    a vulnerability is clicked, the Qwen AI model instantly provides emergency patching
+                                    steps and isolation recommendations.</span>
                             </div>
                         </li>
                         <li style="display: flex; align-items: flex-start; gap: 1.2rem;">
-                            <div style="background: rgba(59, 130, 246, 0.15); padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(59, 130, 246, 0.3); margin-top: 0.2rem;"><i class="ph ph-radar" style="color: #60a5fa; font-size: 1.6rem;"></i></div>
+                            <div
+                                style="background: rgba(59, 130, 246, 0.15); padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(59, 130, 246, 0.3); margin-top: 0.2rem;">
+                                <i class="ph ph-radar" style="color: #60a5fa; font-size: 1.6rem;"></i></div>
                             <div>
                                 <strong style="font-size: 1.15rem; color: #fff;">Broad Intelligence</strong><br>
-                                <span style="opacity: 0.7; font-size: 0.95rem; line-height: 1.5; display: inline-block; margin-top: 0.3rem;">Simultaneously scans official NVD (NIST) databases, CISA Known Exploited Vulnerabilities, GitHub Security Advisories (GHSA), and industry-standard Exploit-DB repositories.</span>
+                                <span
+                                    style="opacity: 0.7; font-size: 0.95rem; line-height: 1.5; display: inline-block; margin-top: 0.3rem;">Simultaneously
+                                    scans official NVD (NIST) databases, CISA Known Exploited Vulnerabilities, GitHub
+                                    Security Advisories (GHSA), and industry-standard Exploit-DB repositories.</span>
                             </div>
                         </li>
                     </ul>
@@ -184,4 +249,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>
