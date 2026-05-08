@@ -303,16 +303,4 @@ def main():
     print(f"--- Saved {len(all_threats)} threats ---")
 
 if __name__ == "__main__":
-    # --- Continuous Flow Mode ---
-    INTERVAL_HOURS = 1 
-    
-    while True:
-        start_time = time.time()
-        try:
-            main()
-            duration = round(time.time() - start_time, 2)
-            print(f"--- Cycle Complete ({duration}s). Next sync in {INTERVAL_HOURS} hour(s) ---")
-        except Exception as e:
-            print(f"Critical error in main loop: {e}")
-        
-        time.sleep(INTERVAL_HOURS * 3600)
+    main()
