@@ -1,6 +1,6 @@
 # 🌌 Midnight Intelligence Dashboard
 
-**Midnight (v2.e Elite)** is a high-performance Cyber Threat Intelligence (CTI) dashboard designed to aggregate, analyze, and visualize real-time vulnerability data from multiple high-fidelity sources.
+**Midnight (v2.2 Elite)** is a high-performance Cyber Threat Intelligence (CTI) dashboard designed to aggregate, analyze, and visualize real-time vulnerability data from multiple high-fidelity sources.
 
 ![Midnight Intelligence](https://img.shields.io/badge/Status-Active-brightgreen)
 ![Python](https://img.shields.io/badge/Backend-Python_3.9+-blue)
