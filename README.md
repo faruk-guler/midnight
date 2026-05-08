@@ -1,6 +1,6 @@
-# 🌌 Antigravity: Midnight Intelligence Dashboard
+# 🌌 Midnight Intelligence Dashboard
 
-**Antigravity (v2.5)** is a high-performance Cyber Threat Intelligence (CTI) dashboard designed to aggregate, analyze, and visualize real-time vulnerability data from multiple high-fidelity sources.
+**Midnight (v2.5)** is a high-performance Cyber Threat Intelligence (CTI) dashboard designed to aggregate, analyze, and visualize real-time vulnerability data from multiple high-fidelity sources.
 
 ![Midnight Intelligence](https://img.shields.io/badge/Status-Active-brightgreen)
 ![Python](https://img.shields.io/badge/Backend-Python_3.9+-blue)
