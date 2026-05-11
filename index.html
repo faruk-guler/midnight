@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midnight | Threat Intelligence</title>
+    <meta name="description"
+        content="Midnight: Real-time tracking of zero-day vulnerabilities and global threat intelligence.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-effects">
+        <div class="glow blob-1"></div>
+        <div class="glow blob-2"></div>
+    </div>
+
+    <main class="dashboard-container">
+        <header class="glass-panel">
+            <div class="header-content">
+                <a href="https://farukguler.com/midnight" class="logo" style="text-decoration: none; color: inherit;">
+                    <img src="image/midnight-logo.png" alt="Midnight Logo" class="app-logo">
+                    <h1 style="display: flex; flex-direction: column; line-height: 1;">
+                        <span style="font-size: 1.8rem; font-weight: 800; letter-spacing: 1px;">MIDNIGHT</span>
+                        <span style="font-size: 0.75rem; color: #8b5cf6; letter-spacing: 3px; margin-top: 2px;">THREAT
+                            INTELLIGENCE</span>
+                    </h1>
+                </a>
+
+                <nav class="nav-tabs">
+                    <button class="nav-btn active" data-tab="dashboard"><i class="ph ph-gauge"></i> Dashboard</button>
+                    <button class="nav-btn" data-tab="sources"><i class="ph ph-plugs"></i> Sources</button>
+                    <button class="nav-btn" data-tab="about"><i class="ph ph-info"></i> About</button>
+                </nav>
+
+                <div class="status-bar"
+                    style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; justify-content: center;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div
+                            style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; box-shadow: 0 0 10px #22c55e;">
+                        </div>
+                        <span id="realtime-clock"
+                            style="font-family: 'Courier New', Courier, monospace; color: #e2e8f0; font-size: 0.9rem; letter-spacing: 0.5px;">Loading
+                            time...</span>
+                    </div>
+                    <span id="last-updated-text"
+                        style="font-family: 'Courier New', Courier, monospace; color: #64748b; font-size: 0.7rem; letter-spacing: 0.5px;">Syncing
+                        data...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Midnight Intelligence Overview -->
+        <div id="dashboard-section" style="display: block;">
+            <div class="stats-overview">
+                <div class="stat-card glass-panel" id="card-total" style="cursor: default;">
+                    <i class="ph ph-shield" style="font-size: 1.4rem; color: #60a5fa; margin-bottom: 0.25rem;"></i>
+                    <span class="stat-label" style="color: #93c5fd;">TOTAL CVES</span>
+                    <span id="stat-total" class="stat-value" style="color: #60a5fa;">0</span>
+                </div>
+                <div class="stat-card glass-panel critical" id="card-critical" style="cursor: default;">
+                    <i class="ph ph-skull" style="font-size: 1.4rem; color: #f87171; margin-bottom: 0.25rem;"></i>
+                    <span class="stat-label" style="color: #fca5a5;">CRITICAL (MTS 80+)</span>
+                    <span id="stat-critical" class="stat-value" style="color: #f87171;">0</span>
+                </div>
+                <div class="stat-card glass-panel trending" id="card-trending" style="cursor: default;">
+                    <i class="ph ph-flame" style="font-size: 1.4rem; color: #fb923c; margin-bottom: 0.25rem;"></i>
+                    <span class="stat-label" style="color: #fdba74;">HIGH (MTS 60+)</span>
+                    <span id="stat-high" class="stat-value" style="color: #fb923c;">0</span>
+                </div>
+                <div class="stat-card glass-panel exploited" id="card-exploited" style="cursor: default;">
+                    <i class="ph ph-warning-octagon" style="font-size: 1.4rem; color: #facc15; margin-bottom: 0.25rem;"></i>
+                    <span class="stat-label" style="color: #fde047;">CISA KEV</span>
+                    <span id="stat-exploited" class="stat-value" style="color: #facc15;">0</span>
+                </div>
+                <div class="stat-card glass-panel" style="border: 1px solid rgba(168, 85, 247, 0.3);">
+                    <i class="ph ph-bug" style="font-size: 1.4rem; color: #c084fc; margin-bottom: 0.25rem;"></i>
+                    <span class="stat-label" style="color: #d8b4fe;">ACTIVE EXPLOITS</span>
+                    <span id="stat-active" class="stat-value" style="color: #c084fc;">0</span>
+                </div>
+            </div>
+
+            <div id="feed-container" style="margin-top: 0.5rem;">
+
+                <div class="controls glass-panel"
+                    style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 41, 59, 0.8); border-radius: 8px; margin-bottom: 1rem; padding: 1rem;">
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <div class="search-box" style="flex: 1; min-width: 300px; position: relative;">
+                            <input type="text" id="search-input"
+                                placeholder="Search by CVE ID, vendor, product or keyword..."
+                                style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 0.8rem 1rem; color: #e2e8f0; font-family: 'Courier New', Courier, monospace; outline: none;">
+                        </div>
+                        <div class="filter-group" style="display: flex; gap: 0.5rem; align-items: center;">
+                            <button class="filter-btn active" data-severity="all"
+                                style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #e2e8f0; cursor: pointer;">ALL</button>
+                            <button class="filter-btn" data-severity="CRITICAL"
+                                style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.1); color: #fda4af; cursor: pointer;">CRITICAL</button>
+                            <button class="filter-btn" data-severity="HIGH"
+                                style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(249, 115, 22, 0.3); background: rgba(249, 115, 22, 0.1); color: #fdba74; cursor: pointer;">HIGH</button>
+                            <button id="clear-search-btn"
+                                style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #94a3b8; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;"><i
+                                    class="ph ph-x-circle"></i> CLEAR</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container"
+                    style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(30, 41, 59, 0.8); border-radius: 8px; overflow-x: auto;">
+                    <table
+                        style="width: 100%; border-collapse: collapse; text-align: left; font-family: 'Courier New', Courier, monospace; font-size: 0.85rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">
+                                <th style="padding: 1rem; font-weight: normal; width: 56px;">MTS &#9660;</th>
+                                <th style="padding: 1rem; font-weight: normal; width: 145px;">CVE ID</th>
+                                <th style="padding: 1rem; font-weight: normal;">Vulnerability</th>
+                                <th style="padding: 1rem; font-weight: normal; width: 58px;">CVSS</th>
+                                <th style="padding: 1rem; font-weight: normal; width: 78px;">EPSS</th>
+                                <th style="padding: 1rem; font-weight: normal; width: 115px;">Vendor</th>
+                                <th style="padding: 1rem; font-weight: normal; width: 100px;">Published</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cve-table-body">
+                            <tr>
+                                <td colspan="7" style="text-align:center; padding:2rem; color:#64748b;">Fetching intelligence...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div id="load-more-container"
+                        style="text-align: center; padding: 2rem; border-top: 1px solid rgba(255,255,255,0.05); display: none;">
+                        <button id="load-more-btn"
+                            style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 0.8rem 2.5rem; border-radius: 8px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 600; transition: all 0.2s;">LOAD
+                            MORE VULNERABILITIES</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sources Section -->
+        <div id="sources-section" style="display: none;" class="glass-panel">
+            <div style="padding: 2rem 2.5rem;">
+                <div style="margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h2 style="font-family: 'Courier New', monospace; color: #cbd5e1; font-size: 1.1rem; letter-spacing: 1px; font-weight: normal; margin: 0;">// INTELLIGENCE SOURCES</h2>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; padding: 0.4rem 1rem; font-family: 'Courier New', monospace; font-size: 0.8rem; color: #c4b5fd;">9 ACTIVE FEEDS</span>
+                        <a href="cves.json" download="midnight_cves.json"
+                            style="text-decoration: none; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 0.4rem 1rem; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="ph ph-download-simple"></i> JSON EXPORT
+                        </a>
+                    </div>
+                </div>
+                <div class="sources-grid">
+                    <div class="source-card">
+                        <div class="source-card-top"><div class="source-icon" style="background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3);"><i class="ph ph-database" style="color:#60a5fa;"></i></div><span class="source-type-tag" style="color:#60a5fa;border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1);">API v2.0</span></div>
+                        <h3 class="source-name">NVD — NIST</h3>
+                        <p class="source-desc">Official U.S. government repository of standards-based vulnerability management data. Includes CVSS v3/v2 scores and detailed technical descriptions.</p>
+                        <div class="source-tags"><span>CVE Database</span><span>CVSS Scores</span><span>CWE Types</span></div>
+                        <a href="https://nvd.nist.gov" target="_blank" class="source-link" style="color:#60a5fa;border-color:rgba(59,130,246,0.3);"><i class="ph ph-arrow-square-out"></i> nvd.nist.gov</a>
+                    </div>
+                    <div class="source-card">
+                        <div class="source-card-top"><div class="source-icon" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);"><i class="ph ph-warning-octagon" style="color:#f87171;"></i></div><span class="source-type-tag" style="color:#f87171;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);">JSON Feed</span></div>
+                        <h3 class="source-name">CISA KEV</h3>
+                        <p class="source-desc">Catalog of actively exploited vulnerabilities maintained by the U.S. Cybersecurity and Infrastructure Security Agency.</p>
+                        <div class="source-tags"><span>Active Exploits</span><span>Federal Mandates</span><span>Patch Deadlines</span></div>
+                        <a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" class="source-link" style="color:#f87171;border-color:rgba(239,68,68,0.3);"><i class="ph ph-arrow-square-out"></i> cisa.gov/kev</a>
+                    </div>
+                    <div class="source-card">
+                        <div class="source-card-top"><div class="source-icon" style="background:rgba(244,114,182,0.1);border-color:rgba(244,114,182,0.3);"><i class="ph ph-bug" style="color:#f472b6;"></i></div><span class="source-type-tag" style="color:#f472b6;border-color:rgba(244,114,182,0.3);background:rgba(244,114,182,0.1);">CSV Feed</span></div>
+                        <h3 class="source-name">Exploit-DB</h3>
+                        <p class="source-desc">Public exploit archive maintained by Offensive Security. Covers the last 30 days of published PoC exploits and attack types.</p>
+                        <div class="source-tags"><span>PoC Exploits</span><span>Shellcodes</span><span>Attack Types</span></div>
+                        <a href="https://www.exploit-db.com" target="_blank" class="source-link" style="color:#f472b6;border-color:rgba(244,114,182,0.3);"><i class="ph ph-arrow-square-out"></i> exploit-db.com</a>
+                    </div>
+                    <div class="source-card">
+                        <div class="source-card-top"><div class="source-icon" style="background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.3);"><i class="ph ph-github-logo" style="color:#4ade80;"></i></div><span class="source-type-tag" style="color:#4ade80;border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.1);">OSV API</span></div>
+                        <h3 class="source-name">GitHub / OSV.dev</h3>
+                        <p class="source-desc">Open-source vulnerability database aggregating GHSA advisories and ecosystem-specific security reports.</p>
+                        <div class="source-tags"><span>GHSA Advisories</span><span>OSS Packages</span><span>Supply Chain</span></div>
+                        <a href="https://osv.dev" target="_blank" class="source-link" style="color:#4ade80;border-color:rgba(74,222,128,0.3);"><i class="ph ph-arrow-square-out"></i> osv.dev</a>
+                    </div>
+                    <div class="source-card">
+                        <div class="source-card-top"><div class="source-icon" style="background:rgba(56,189,248,0.1);border-color:rgba(56,189,248,0.3);"><i class="ph ph-chart-line-up" style="color:#38bdf8;"></i></div><span class="source-type-tag" style="color:#38bdf8;border-color:rgba(56,189,248,0.3);background:rgba(56,189,248,0.1);">API</span></div>
+                        <h3 class="source-name">EPSS — FIRST.org</h3>
+                        <p class="source-desc">ML-based scoring system estimating the probability of a vulnerability being exploited in the next 30 days.</p>
+                        <div class="source-tags"><span>Exploitation Prob.</span><span>ML Scoring</span><span>Risk Priority</span></div>
+                        <a href="https://www.first.org/epss" target="_blank" class="source-link" style="color:#38bdf8;border-color:rgba(56,189,248,0.3);"><i class="ph ph-arrow-square-out"></i> first.org/epss</a>
+                    </div>
+                    <div class="source-card">
+                        <div class="source-card-top"><div class="source-icon" style="background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.3);"><i class="ph ph-crosshair" style="color:#fb923c;"></i></div><span class="source-type-tag" style="color:#fb923c;border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.1);">RSS Feed</span></div>
+                        <h3 class="source-name">Zero Day Initiative</h3>
+                        <p class="source-desc">Trend Micro's ZDI program publishes zero-day vulnerability advisories through coordinated vendor disclosure.</p>
+                        <div class="source-tags"><span>0-Day Advisories</span><span>Vendor Coordination</span><span>PoC Details</span></div>
+                        <a href="https://www.zerodayinitiative.com" target="_blank" class="source-link" style="color:#fb923c;border-color:rgba(251,146,60,0.3);"><i class="ph ph-arrow-square-out"></i> zerodayinitiative.com</a>
+                    </div>
+                    <div class="source-card">
+                        <div class="source-card-top"><div class="source-icon" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);"><i class="ph ph-magnifying-glass" style="color:#f87171;"></i></div><span class="source-type-tag" style="color:#f87171;border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.1);">RSS Feed</span></div>
+                        <h3 class="source-name">Google Project Zero</h3>
+                        <p class="source-desc">Google's elite security research team publishing critical in-the-wild 0-day discoveries and browser/OS vulnerabilities.</p>
+                        <div class="source-tags"><span>0-Day Research</span><span>In-the-Wild</span><span>Browser/OS</span></div>
+                        <a href="https://googleprojectzero.blogspot.com" target="_blank" class="source-link" style="color:#f87171;border-color:rgba(248,113,113,0.3);"><i class="ph ph-arrow-square-out"></i> googleprojectzero.blogspot.com</a>
+                    </div>
+                    <div class="source-card">
+                        <div class="source-card-top"><div class="source-icon" style="background:rgba(196,181,253,0.1);border-color:rgba(196,181,253,0.3);"><i class="ph ph-certificate" style="color:#c4b5fd;"></i></div><span class="source-type-tag" style="color:#c4b5fd;border-color:rgba(196,181,253,0.3);background:rgba(196,181,253,0.1);">RSS Feed</span></div>
+                        <h3 class="source-name">CERT/CC</h3>
+                        <p class="source-desc">Carnegie Mellon University's technical reports on software vulnerabilities, vendor advisories, and coordinated disclosure.</p>
+                        <div class="source-tags"><span>Vendor Advisories</span><span>Coordination</span><span>Technical Reports</span></div>
+                        <a href="https://kb.cert.org/vuls" target="_blank" class="source-link" style="color:#c4b5fd;border-color:rgba(196,181,253,0.3);"><i class="ph ph-arrow-square-out"></i> kb.cert.org/vuls</a>
+                    </div>
+                    <div class="source-card">
+                        <div class="source-card-top"><div class="source-icon" style="background:rgba(45,212,191,0.1);border-color:rgba(45,212,191,0.3);"><i class="ph ph-shield-checkered" style="color:#2dd4bf;"></i></div><span class="source-type-tag" style="color:#2dd4bf;border-color:rgba(45,212,191,0.3);background:rgba(45,212,191,0.1);">RSS Feed</span></div>
+                        <h3 class="source-name">USOM &mdash; TR-CERT</h3>
+                        <p class="source-desc">Turkey's National Cyber Incident Response Center (BTK/USOM). Feed is pulled from <code style="color:#2dd4bf;background:rgba(45,212,191,0.08);padding:1px 4px;border-radius:3px;">usom.gov.tr</code>. Advisory detail pages are served via <code style="color:#2dd4bf;background:rgba(45,212,191,0.08);padding:1px 4px;border-radius:3px;">siberguvenlik.gov.tr</code> (the unified national cybersecurity portal).</p>
+                        <div class="source-tags"><span>TR National CERT</span><span>Threat Advisories</span><span>BTK / ICTA</span></div>
+                        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
+                            <a href="https://www.usom.gov.tr/bildirim/" target="_blank" class="source-link" style="color:#2dd4bf;border-color:rgba(45,212,191,0.3);flex:1;justify-content:center;"><i class="ph ph-rss"></i> usom.gov.tr</a>
+                            <a href="https://siberguvenlik.gov.tr/guvenlik-bildirimleri/" target="_blank" class="source-link" style="color:#2dd4bf;border-color:rgba(45,212,191,0.3);flex:1;justify-content:center;"><i class="ph ph-arrow-square-out"></i> siberguvenlik.gov.tr</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="about-section" style="display: none;" class="glass-panel">
+            <div
+                style="padding: 3rem 2rem; color: #e2e8f0; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 4rem; align-items: center;">
+
+                <!-- Developer Profile -->
+                <div
+                    style="text-align: center; background: rgba(0,0,0,0.25); padding: 3rem 2rem; border-radius: 16px; border: 1px solid rgba(139, 92, 246, 0.2); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+                    <div
+                        style="width: 120px; height: 120px; background: rgba(139, 92, 246, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; border: 2px solid rgba(139, 92, 246, 0.5); box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);">
+                        <i class="ph ph-user-focus" style="font-size: 5rem; color: #c4b5fd;"></i>
+                    </div>
+                    <h2
+                        style="color: #fff; margin-bottom: 0.5rem; font-size: 2.2rem; font-family: 'Outfit', sans-serif;">
+                        Faruk Güler</h2>
+                    <p style="font-size: 1.1rem; color: #a78bfa; margin-bottom: 2.5rem; font-weight: 500;">Cyber
+                        Security Researcher & ITSysadmin</p>
+
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <a href="https://www.farukguler.com" target="_blank"
+                            style="text-decoration: none; color: #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 1.1rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3); transition: all 0.3s ease;">
+                            <i class="ph ph-globe" style="font-size: 1.3rem; color: #60a5fa;"></i> www.farukguler.com
+                        </a>
+                        <a href="https://github.com/faruk-guler" target="_blank"
+                            style="text-decoration: none; color: #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 1.1rem; padding: 1rem; background: rgba(167, 139, 250, 0.1); border-radius: 12px; border: 1px solid rgba(167, 139, 250, 0.3); transition: all 0.3s ease;">
+                            <i class="ph ph-github-logo" style="font-size: 1.3rem; color: #c4b5fd;"></i>
+                            github.com/faruk-guler
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tool Features -->
+                <div>
+                    <h2
+                        style="color: #c4b5fd; margin-bottom: 1.5rem; font-size: 2.2rem; border-bottom: 1px solid rgba(139, 92, 246, 0.3); padding-bottom: 1rem;">
+                        Midnight CTI <span style="font-size: 1.2rem; color: #94a3b8; font-weight: 400;">v2.2
+                            Elite</span></h2>
+                    <p style="font-size: 1.1rem; line-height: 1.7; margin-bottom: 2.5rem; color: #cbd5e1;">This platform
+                        unifies global cyber threat intelligence (CTI) into a single dashboard, allowing you to
+                        instantly analyze the most critical vulnerabilities.</p>
+
+                    <ul style="list-style-type: none; padding: 0; display: flex; flex-direction: column; gap: 1.5rem;">
+                        <li style="display: flex; align-items: flex-start; gap: 1.2rem;">
+                            <div
+                                style="background: rgba(244, 63, 94, 0.15); padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(244, 63, 94, 0.3); margin-top: 0.2rem;">
+                                <i class="ph ph-target" style="color: #fb7185; font-size: 1.6rem;"></i></div>
+                            <div>
+                                <strong style="font-size: 1.15rem; color: #fff;">MTS (Midnight Threat
+                                    Score)</strong><br>
+                                <span
+                                    style="opacity: 0.7; font-size: 0.95rem; line-height: 1.5; display: inline-block; margin-top: 0.3rem;">A
+                                    custom algorithm that blends CVSS, EPSS, and social media trends to generate a risk
+                                    score between 0-100.</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 1.2rem;">
+                            <div
+                                style="background: rgba(167, 139, 250, 0.15); padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(167, 139, 250, 0.3); margin-top: 0.2rem;">
+                                <i class="ph ph-plugs" style="color: #c4b5fd; font-size: 1.6rem;"></i></div>
+                            <div>
+                                <strong style="font-size: 1.15rem; color: #fff;">Multi-Source Aggregation</strong><br>
+                                <span
+                                    style="opacity: 0.7; font-size: 0.95rem; line-height: 1.5; display: inline-block; margin-top: 0.3rem;">Aggregates data in parallel from 9 independent intelligence sources: NVD, CISA KEV, Exploit-DB, GitHub/OSV, EPSS, ZDI, Google P0, CERT/CC and USOM.</span>
+                            </div>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 1.2rem;">
+                            <div
+                                style="background: rgba(59, 130, 246, 0.15); padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(59, 130, 246, 0.3); margin-top: 0.2rem;">
+                                <i class="ph ph-radar" style="color: #60a5fa; font-size: 1.6rem;"></i></div>
+                            <div>
+                                <strong style="font-size: 1.15rem; color: #fff;">Broad Intelligence</strong><br>
+                                <span
+                                    style="opacity: 0.7; font-size: 0.95rem; line-height: 1.5; display: inline-block; margin-top: 0.3rem;">Simultaneously
+                                    scans official NVD (NIST) databases, CISA Known Exploited Vulnerabilities, GitHub
+                                    Security Advisories (GHSA), and industry-standard Exploit-DB repositories.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
