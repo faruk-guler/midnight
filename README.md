@@ -24,14 +24,15 @@
 
 | Source | Type | Information Provided |
 | :--- | :--- | :--- |
-| **NVD (NIST)** | API v2.0 | Resmi CVE veritabanı, CVSS skorları ve teknik açıklamalar. |
-| **CISA KEV** | JSON Feed | Aktif olarak sömürülen (Known Exploited) zafiyet listesi. |
-| **Exploit-DB** | CSV Feed | Mevcut public exploit kodları ve saldırı türleri. |
-| **GitHub / OSV** | API | Açık kaynak ekosistemine ait güvenlik duyuruları (GHSA). |
-| **EPSS (FIRST)** | API | Zafiyetlerin gelecek 30 gün içindeki sömürülme olasılığı. |
-| **ZDI** | RSS | Zero Day Initiative tarafından yayınlanan sıfır gün duyuruları. |
-| **Google Project Zero** | RSS | Google'ın güvenlik ekibi tarafından tespit edilen kritik zafiyetler. |
-| **CERT-CC** | RSS | Yazılım zafiyetleri ve satıcı duyuruları hakkında teknik raporlar. |
+| **NVD (NIST)** | API v2.0 | Official CVE database, CVSS scores, and technical descriptions. |
+| **CISA KEV** | JSON Feed | Catalog of actively exploited vulnerabilities (Known Exploited). |
+| **Exploit-DB** | CSV Feed | Available public exploit codes and attack types. |
+| **GitHub / OSV** | API | Security advisories belonging to the open-source ecosystem (GHSA). |
+| **EPSS (FIRST)** | API | Probability of vulnerabilities being exploited within the next 30 days. |
+| **ZDI** | RSS | Zero-day advisories published by the Zero Day Initiative. |
+| **Google Project Zero** | RSS | Critical vulnerabilities discovered by Google's security team. |
+| **CERT-CC** | RSS | Technical reports regarding software vulnerabilities and vendor advisories. |
+| **TR-CERT** | REST API | Cybersecurity Directorate of Turkey (former USOM). USOM was transferred to the Directorate by Law No. 7545 (March 2025); old RSS/txt feeds ended on June 1, 2026. |
 
 ## ⚙️ Setup & Installation
 

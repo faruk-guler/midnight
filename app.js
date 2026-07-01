@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // State
     let cveData = [];
-    let statsData = null;
     let searchQuery = '';
     let currentFilter = 'all';
     let currentPage = 1;
@@ -46,13 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const data = await response.json();
             cveData = data.cves || [];
-            statsData = data.stats || null;
 
             if (lastUpdatedEl && data.last_updated) {
                 const dateObj = new Date(data.last_updated);
                 lastUpdatedEl.textContent = `Last Sync: ${dateObj.toLocaleString('en-US', { hour12: true })}`;
             }
 
+            // Update stats once after data load — not on every search/filter
+            updateDashboardStats();
             renderCVEs();
         } catch (error) {
             console.error('Midnight Intelligence Error:', error);
@@ -65,9 +65,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Update dashboard stat cards — called once after data load, not on every search
+    function updateDashboardStats() {
+        const statTotal    = document.getElementById('stat-total');
+        const statCritical = document.getElementById('stat-critical');
+        const statHigh     = document.getElementById('stat-high');
+        const statExploited = document.getElementById('stat-exploited');
+        const statActive   = document.getElementById('stat-active');
+
+        if (statTotal) statTotal.textContent = cveData.length.toLocaleString();
+
+        let critCount = 0, highCount = 0, kevCount = 0, edbCount = 0;
+        cveData.forEach(c => {
+            const mts = c.mts_score || 0;
+            // MTS-based thresholds — matches header labels
+            if (mts >= 80) critCount++;
+            else if (mts >= 60) highCount++;
+            // CISA KEV: entries explicitly marked exploited (but not Exploit-DB)
+            if (c.is_exploited && c.source !== 'Exploit-DB') kevCount++;
+            // Active Exploits: Exploit-DB entries only
+            if (c.source === 'Exploit-DB') edbCount++;
+        });
+
+        if (statCritical) statCritical.textContent = critCount.toLocaleString();
+        if (statHigh)     statHigh.textContent     = highCount.toLocaleString();
+        if (statExploited) statExploited.textContent = kevCount.toLocaleString();
+        if (statActive)   statActive.textContent   = edbCount.toLocaleString();
+    }
+
     // Render Logic
     function renderCVEs(append = false) {
         if (!container) return;
+        // Clear container only once on fresh render
         if (!append) {
             container.innerHTML = '';
             currentPage = 1;
@@ -75,30 +104,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const query = searchQuery.toLowerCase();
         const filteredData = cveData.filter(cve => {
-            const matchSeverity = currentFilter === 'all' || cve.severity === currentFilter;
+            // Severity filter: support both MTS-label-based and legacy severity field
+            let matchSeverity = true;
+            if (currentFilter === 'CRITICAL') {
+                matchSeverity = (cve.mts_score || 0) >= 80;
+            } else if (currentFilter === 'HIGH') {
+                const mts = cve.mts_score || 0;
+                matchSeverity = mts >= 60 && mts < 80;
+            } else if (currentFilter === 'MEDIUM') {
+                const mts = cve.mts_score || 0;
+                matchSeverity = mts >= 30 && mts < 60;
+            }
+            // 'all' falls through to matchSeverity = true
             
             let matchSearch = true;
             if (query) {
                 if (query.includes(':')) {
                     const [key, ...rest] = query.split(':');
                     const val = rest.join(':').trim();
-                    if (key === 'vendor') matchSearch = (cve.vendor || '').toLowerCase().includes(val);
-                    else if (key === 'score') {
+                    if (key === 'vendor') {
+                        matchSearch = (cve.vendor || '').toLowerCase().includes(val);
+                    } else if (key === 'score') {
                         // Parse operator first (>= and <= before > and <)
                         let op, num;
-                        if (val.startsWith('>=')) { op = '>='; num = parseFloat(val.slice(2)); }
+                        if (val.startsWith('>='))      { op = '>='; num = parseFloat(val.slice(2)); }
                         else if (val.startsWith('<=')) { op = '<='; num = parseFloat(val.slice(2)); }
-                        else if (val.startsWith('>')) { op = '>'; num = parseFloat(val.slice(1)); }
-                        else if (val.startsWith('<')) { op = '<'; num = parseFloat(val.slice(1)); }
-                        else { op = '=='; num = parseFloat(val); }
+                        else if (val.startsWith('>'))  { op = '>';  num = parseFloat(val.slice(1)); }
+                        else if (val.startsWith('<'))  { op = '<';  num = parseFloat(val.slice(1)); }
+                        else                           { op = '=='; num = parseFloat(val); }
                         const s = cve.score || 0;
-                        if (op === '>') matchSearch = s > num;
+                        if      (op === '>')  matchSearch = s > num;
                         else if (op === '>=') matchSearch = s >= num;
-                        else if (op === '<') matchSearch = s < num;
+                        else if (op === '<')  matchSearch = s < num;
                         else if (op === '<=') matchSearch = s <= num;
-                        else matchSearch = s === num;
+                        else                  matchSearch = s === num;
+                    } else if (key === 'mts') {
+                        // Support mts:>=80 style filtering too
+                        let op, num;
+                        if (val.startsWith('>='))      { op = '>='; num = parseFloat(val.slice(2)); }
+                        else if (val.startsWith('<=')) { op = '<='; num = parseFloat(val.slice(2)); }
+                        else if (val.startsWith('>'))  { op = '>';  num = parseFloat(val.slice(1)); }
+                        else if (val.startsWith('<'))  { op = '<';  num = parseFloat(val.slice(1)); }
+                        else                           { op = '=='; num = parseFloat(val); }
+                        const m = cve.mts_score || 0;
+                        if      (op === '>')  matchSearch = m > num;
+                        else if (op === '>=') matchSearch = m >= num;
+                        else if (op === '<')  matchSearch = m < num;
+                        else if (op === '<=') matchSearch = m <= num;
+                        else                  matchSearch = m === num;
+                    } else if (key === 'id') {
+                        matchSearch = cve.id.toLowerCase().includes(val);
+                    } else if (key === 'source') {
+                        matchSearch = (cve.source || '').toLowerCase().includes(val);
                     }
-                    else if (key === 'id') matchSearch = cve.id.toLowerCase().includes(val);
                 } else {
                     matchSearch = cve.id.toLowerCase().includes(query) || 
                                   (cve.description || '').toLowerCase().includes(query) || 
@@ -107,34 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return matchSeverity && matchSearch;
         });
-
-        // Update Dashboard Stats
-        const statTotal = document.getElementById('stat-total');
-        const statCritical = document.getElementById('stat-critical');
-        const statHigh = document.getElementById('stat-high');
-        const statExploited = document.getElementById('stat-exploited');
-        const statActive = document.getElementById('stat-active');
-
-        if (statTotal) statTotal.textContent = cveData.length.toLocaleString();
-        
-        let critCount = 0, highCount = 0, explCount = 0, activeCount = 0;
-        cveData.forEach(c => {
-            const score = c.score || 0;
-            if (score >= 9.0) critCount++;
-            else if (score >= 7.0) highCount++;
-            if (c.is_exploited) explCount++;
-            if (c.is_exploited || c.source === 'Exploit-DB') activeCount++;
-        });
-
-        if (statCritical) statCritical.textContent = critCount.toLocaleString();
-        if (statHigh) statHigh.textContent = highCount.toLocaleString();
-        if (statExploited) statExploited.textContent = explCount.toLocaleString();
-        if (statActive) statActive.textContent = activeCount.toLocaleString();
-
-        // Only clear container on fresh render, not on append
-        if (!append) {
-            container.innerHTML = '';
-        }
 
         const startIdx = append ? (currentPage - 1) * itemsPerPage : 0;
         const newItems = filteredData.slice(startIdx, currentPage * itemsPerPage);
@@ -182,26 +212,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Source badge color
             let sourceColor = '#64748b';
-            if (cve.source === 'GitHub')     sourceColor = '#4ade80';
-            else if (cve.source === 'NVD')       sourceColor = '#38bdf8';
+            if (cve.source === 'GitHub')      sourceColor = '#4ade80';
+            else if (cve.source === 'NVD')        sourceColor = '#38bdf8';
             else if (cve.source === 'Exploit-DB') sourceColor = '#f472b6';
-            else if (cve.source === 'ZDI')       sourceColor = '#fb923c';
-            else if (cve.source === 'GoogleP0')  sourceColor = '#f87171';
-            else if (cve.source === 'CERT-CC')   sourceColor = '#c4b5fd';
-            else if (cve.source === 'USOM')      sourceColor = '#2dd4bf';
+            else if (cve.source === 'ZDI')        sourceColor = '#fb923c';
+            else if (cve.source === 'GoogleP0')   sourceColor = '#f87171';
+            else if (cve.source === 'CERT-CC')    sourceColor = '#c4b5fd';
+            else if (cve.source === 'TR-CERT')    sourceColor = '#2dd4bf';
+            else if (cve.source === 'USOM')       sourceColor = '#2dd4bf'; // legacy entries
 
             // NEW badge: published within last 3 days
             const pubDate = cve.published ? new Date(cve.published) : null;
             const isNew = pubDate && (Date.now() - pubDate.getTime()) < 3 * 24 * 60 * 60 * 1000;
 
+            // Show N/A for MTS if score is effectively zero (no data available)
+            const mtsDisplay = mtsScore > 1 ? Math.round(mtsScore) : '—';
+
             tr.innerHTML = `
                 <td style="padding: 0.75rem 1rem;">
                     <div style="background:${mtsBg}; color:${mtsColor}; border:1px solid ${mtsBorder}; border-radius:6px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.78rem;" title="MTS: ${mtsScore}">
-                        ${Math.round(mtsScore)}
+                        ${mtsDisplay}
                     </div>
                 </td>
                 <td style="padding: 0.75rem 1rem; font-weight:bold;">
-                    <a href="${cve.source_url}" target="_blank" onclick="event.stopPropagation()" style="color:#38bdf8; text-decoration:none; border-bottom:1px dashed rgba(56,189,248,0.4);">${escapeHTML(cve.id)}</a>
+                    <a href="${escapeHTML(cve.source_url)}" target="_blank" onclick="event.stopPropagation()" style="color:#38bdf8; text-decoration:none; border-bottom:1px dashed rgba(56,189,248,0.4);">${escapeHTML(cve.id)}</a>
                 </td>
                 <td style="padding: 0.75rem 1rem;">
                     <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap;">

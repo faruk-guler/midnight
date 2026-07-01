@@ -42,7 +42,8 @@ def fetch_rss_feed(url, source_name):
                         day, month_str, year = parts[1], parts[2], parts[3]
                         months = {"Jan":"01","Feb":"02","Mar":"03","Apr":"04","May":"05","Jun":"06","Jul":"07","Aug":"08","Sep":"09","Oct":"10","Nov":"11","Dec":"12"}
                         iso_date = f"{year}-{months.get(month_str, '01')}-{day.zfill(2)}T12:00:00.000Z"
-                except: pass
+                except Exception as e:
+                    print(f"  [{source_name}] Date parse error: {e}")
 
                 # Post-filter: skip items older than DATA_WINDOW_DAYS
                 if iso_date:
@@ -51,7 +52,8 @@ def fetch_rss_feed(url, source_name):
                         cutoff = datetime.now(timezone.utc) - timedelta(days=DATA_WINDOW_DAYS)
                         if item_date < cutoff:
                             continue
-                    except: pass
+                    except Exception as e:
+                        print(f"  [{source_name}] Date filter error: {e}")
 
                 safe_desc = desc[:200] if desc else ''
                 threats.append({
@@ -79,116 +81,173 @@ def fetch_cert_cc():
     return fetch_rss_feed("https://kb.cert.org/vuls/rss", "CERT-CC")
 
 def fetch_usom():
-    """Fetch advisories from USOM (Turkish National CERT - usom.gov.tr).
-    USOM is operated by BTK and publishes cyber threat notifications for Turkey.
+    """Fetch security advisories from TR-CERT via the official REST API.
+
+    API: https://siberguvenlik.gov.tr/api/  (OpenAPI v1.1, no auth required)
+    Relevant endpoints used:
+      - GET /api/announcement/index  → security announcements / advisories
+      - GET /api/incident/index      → cyber incident notifications
+
+    Both endpoints support:
+      - language   : 'tr' | 'en'
+      - date_gte   : ISO date lower bound  (e.g. "2026-06-17")
+      - date_lte   : ISO date upper bound
+      - q          : free-text search
+      - page       : page number (0-indexed)
     """
-    print("Fetching USOM (TR-CERT) advisory feed...")
+    print("Fetching TR-CERT advisories via official siberguvenlik.gov.tr API...")
     threats = []
-    try:
-        # USOM public threat advisory RSS feed
-        url = "https://www.usom.gov.tr/rss/tehdit.rss"
-        response = requests.get(url, timeout=15)
-        if response.status_code == 200:
-            root = ET.fromstring(response.text)
-            cutoff = datetime.now(timezone.utc) - timedelta(days=DATA_WINDOW_DAYS)
-            for item in root.findall('.//item'):
-                title_el = item.find('title')
-                link_el  = item.find('link')
-                desc_el  = item.find('description')
-                pub_el   = item.find('pubDate')
+    base_url = "https://siberguvenlik.gov.tr"
+    headers  = {"User-Agent": "Midnight-Intelligence-Tracker/2.2", "Accept": "application/json"}
+    cutoff   = datetime.now(timezone.utc) - timedelta(days=DATA_WINDOW_DAYS)
+    date_gte = cutoff.strftime("%Y-%m-%d")
 
-                title    = (title_el.text or 'No Title') if title_el is not None else 'No Title'
-                link     = (link_el.text  or '')         if link_el  is not None else ''
-                desc     = (desc_el.text  or '')         if desc_el  is not None else ''
-                pub_date = (pub_el.text   or '')         if pub_el   is not None else ''
+    # Fetch both announcement and incident feeds (no date_gte — API ignores it;
+    # filter client-side instead)
+    def fetch_endpoint_all(path, label):
+        """Fetch pages from a TR-CERT API endpoint, filter by date client-side."""
+        results = []
+        page = 0
+        while True:
+            try:
+                params = {"language": "en", "page": page}
+                resp = requests.get(f"{base_url}{path}", params=params,
+                                    headers=headers, timeout=15)
+                if resp.status_code != 200:
+                    print(f"  TR-CERT {label} API returned HTTP {resp.status_code}")
+                    break
+                data = resp.json()
+                models = data.get("models", [])
+                if not models:
+                    break
+                # Client-side date filter
+                for m in models:
+                    raw_date = m.get("date", "")[:10]  # "YYYY-MM-DD"
+                    if raw_date >= date_gte:
+                        results.append(m)
+                # Stop paginating if oldest item on this page is before cutoff
+                if models and models[-1].get("date", "")[:10] < date_gte:
+                    break
+                if page >= data.get("pageCount", 1) - 1:
+                    break
+                page += 1
+            except Exception as e:
+                print(f"  TR-CERT {label} page {page} error: {e}")
+                break
+        print(f"  TR-CERT {label}: fetched {len(results)} items")
+        return results
 
-                combined  = title + ' ' + desc
-                cve_match = re.search(r'CVE-\d{4}-\d{4,7}', combined)
-                cve_id    = cve_match.group(0) if cve_match else f"USOM-{hash(title) % 100000}"
+    # Fetch both announcement and incident feeds
+    announcements = fetch_endpoint_all("/api/announcement/index", "announcements")
+    incidents     = fetch_endpoint_all("/api/incident/index",     "incidents")
 
-                iso_date = ""
-                try:
-                    parts = pub_date.split(' ')
-                    if len(parts) >= 4:
-                        day, month_str, year = parts[1], parts[2], parts[3]
-                        months = {"Jan":"01","Feb":"02","Mar":"03","Apr":"04",
-                                  "May":"05","Jun":"06","Jul":"07","Aug":"08",
-                                  "Sep":"09","Oct":"10","Nov":"11","Dec":"12"}
-                        iso_date = f"{year}-{months.get(month_str, '01')}-{day.zfill(2)}T12:00:00.000Z"
-                except: pass
+    for item in announcements + incidents:
+        raw_url  = item.get("url", "")
+        title    = item.get("title") or item.get("q") or "TR-CERT Advisory"
+        desc     = item.get("desc") or ""
+        pub_date = item.get("date", "")
 
-                # Post-filter to DATA_WINDOW_DAYS
-                if iso_date:
-                    try:
-                        item_date = datetime.fromisoformat(iso_date.replace('Z', '+00:00'))
-                        if item_date < cutoff:
-                            continue
-                    except: pass
+        # Strip HTML tags from desc if any
+        clean_desc = re.sub(r"<[^>]+>", "", desc).strip()[:300]
 
-                safe_desc = desc[:200] if desc else ''
-                threats.append({
-                    'id': cve_id,
-                    'description': f"[USOM] {title} | {safe_desc}...",
-                    'score': 7.0,
-                    'severity': "HIGH",
-                    'published': iso_date or datetime.now(timezone.utc).isoformat(),
-                    'lastModified': iso_date or datetime.now(timezone.utc).isoformat(),
-                    'source': 'USOM',
-                    'source_url': link or 'https://siberguvenlik.gov.tr/guvenlik-bildirimleri/',
-                    'is_exploited': False
-                })
-        else:
-            print(f"USOM feed returned HTTP {response.status_code}")
-    except Exception as e:
-        print(f"Error fetching USOM: {e}")
+        # Normalise date to ISO-8601
+        iso_date = ""
+        try:
+            # API returns "YYYY-MM-DD HH:MM:SS" or "YYYY-MM-DD"
+            iso_date = datetime.strptime(pub_date[:10], "%Y-%m-%d").replace(
+                tzinfo=timezone.utc).isoformat()
+        except Exception:
+            iso_date = datetime.now(timezone.utc).isoformat()
+
+        # Try to extract a CVE ID from the combined text
+        combined  = title + " " + clean_desc + " " + raw_url
+        cve_match = re.search(r"CVE-\d{4}-\d{4,7}", combined)
+        cve_id    = cve_match.group(0) if cve_match else f"TR-CERT-{abs(hash(title + iso_date)) % 100000}"
+
+        # Build the source URL — prefer a direct detail link if the API provides one
+        source_url = raw_url if raw_url.startswith("http") else \
+                     f"https://siberguvenlik.gov.tr/guvenlik-bildirimleri/"
+
+        threats.append({
+            "id":           cve_id,
+            "description":  f"[TR-CERT] {title}" + (f" | {clean_desc}..." if clean_desc else ""),
+            "score":        7.0,
+            "severity":     "HIGH",
+            "published":    iso_date,
+            "lastModified": iso_date,
+            "source":       "TR-CERT",
+            "source_url":   source_url,
+            "is_exploited": False,
+        })
+
+    print(f"  TR-CERT total: {len(threats)} advisories within last {DATA_WINDOW_DAYS} days")
     return threats
 
+
 def fetch_github_advisories():
-    print("Fetching GitHub Security Advisories via OSV.dev...")
+    """Fetch recent GitHub Security Advisories (GHSA) via the public JSON feed.
+
+    GitHub publishes a machine-readable advisory database at:
+      https://github.com/nicowillis/github-advisory-database  (mirror)
+    We use the official GHSA REST v3 endpoint which requires no auth for
+    public advisories, filtering by published_since.
+    """
+    print("Fetching GitHub Security Advisories (GHSA REST API)...")
     advisories = []
     try:
-        # Correct OSV.dev endpoint (query, not queryvulnerabilities)
-        url = "https://api.osv.dev/v1/query"
-        since = (datetime.now(timezone.utc) - timedelta(days=DATA_WINDOW_DAYS)).isoformat().replace('+00:00', 'Z')
-        # OSV query API uses page-based pagination
-        page_token = None
-        for _ in range(5):  # Max 5 pages
-            payload = {"package": {}, "page_size": 1000}
-            if page_token:
-                payload["page_token"] = page_token
-            response = requests.post(url, json=payload, timeout=20)
-            if response.status_code != 200:
+        since = (datetime.now(timezone.utc) - timedelta(days=DATA_WINDOW_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        # GitHub REST API: list public advisories, sorted newest first
+        url = "https://api.github.com/advisories"
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "Midnight-Intelligence-Tracker/2.2",
+        }
+        page = 1
+        while page <= 5:  # Max 5 pages of 100 = 500 advisories
+            params = {
+                "published": f">{since}",
+                "per_page": 100,
+                "page": page,
+                "sort": "published",
+                "direction": "desc",
+            }
+            resp = requests.get(url, headers=headers, params=params, timeout=20)
+            if resp.status_code == 403:
+                print("  GHSA: rate limited — stopping early")
                 break
-            data = response.json()
-            vulns = data.get('vulns', [])
-            for v in vulns:
-                # Filter by publication date
-                pub = v.get('published', '')
-                if pub and pub < since:
-                    continue
-                cve_id = v.get('id', 'Unknown')
-                for alias in v.get('aliases', []):
-                    if alias.startswith('CVE-'):
-                        cve_id = alias
-                        break
-                summary = v.get('summary', 'No summary available.')
-                details = v.get('details', '') or ''
+            if resp.status_code != 200:
+                print(f"  GHSA API returned HTTP {resp.status_code}")
+                break
+            items = resp.json()
+            if not items:
+                break
+            for adv in items:
+                pub = adv.get("published_at", "")
+                # Pick the first CVE alias if available
+                cve_id = adv.get("cve_id") or adv.get("ghsa_id", "Unknown")
+                summary = adv.get("summary", "No summary.")[:200]
+                cvss = adv.get("cvss", {}) or {}
+                score = float(cvss.get("score") or 0)
+                severity = (adv.get("severity") or "UNKNOWN").upper()
                 advisories.append({
-                    'id': cve_id,
-                    'description': f"[GHSA] {summary} | {details[:200]}...",
-                    'score': 7.5,
-                    'severity': "HIGH",
-                    'published': pub,
-                    'lastModified': v.get('modified', ''),
-                    'source': 'GitHub',
-                    'source_url': f"https://github.com/advisories/{v.get('id', '')}",
-                    'is_exploited': False
+                    "id":           cve_id,
+                    "description":  f"[GHSA] {summary}",
+                    "score":        score,
+                    "severity":     severity,
+                    "published":    pub,
+                    "lastModified": adv.get("updated_at", pub),
+                    "source":       "GitHub",
+                    "source_url":   adv.get("html_url") or f"https://github.com/advisories/{adv.get('ghsa_id','')}",
+                    "is_exploited": False,
                 })
-            page_token = data.get('next_page_token')
-            if not page_token:
+            # Stop if this page returned fewer items than requested (last page)
+            if len(items) < 100:
                 break
+            page += 1
     except Exception as e:
-        print(f"Error fetching GitHub/OSV: {e}")
+        print(f"Error fetching GHSA: {e}")
+    print(f"  GHSA: fetched {len(advisories)} advisories")
     return advisories
 
 def fetch_cisa_kev():
@@ -223,8 +282,10 @@ def fetch_exploit_db():
                 exploits.append({
                     'id': f"EDB-{edb_id}",
                     'description': f"[EXPLOIT-DB: {row.get('type', 'Unknown')}] {row.get('description', 'Exploit')} - Author: {row.get('author', 'Unknown')}",
-                    'score': 10.0,
-                    'severity': "CRITICAL",
+                    # Score is intentionally 0.0 — Exploit-DB entries don't carry CVSS data;
+                    # MTS will be driven by EPSS + is_exploited bonus instead.
+                    'score': 0.0,
+                    'severity': "UNKNOWN",
                     'published': date_pub + "T00:00:00.000Z",
                     'lastModified': date_pub + "T00:00:00.000Z",
                     'source': 'Exploit-DB',
@@ -418,9 +479,24 @@ def main():
         all_threats = list(executor.map(enrich_threat, all_threats))
 
     all_threats.sort(key=lambda x: x.get('mts_score', 0), reverse=True)
+
+    # Build stats block for frontend consumption
+    stats = {
+        'total': len(all_threats),
+        'critical_mts80': sum(1 for t in all_threats if (t.get('mts_score') or 0) >= 80),
+        'high_mts60':     sum(1 for t in all_threats if 60 <= (t.get('mts_score') or 0) < 80),
+        'cisa_kev':       sum(1 for t in all_threats if t.get('is_exploited') and t.get('source') != 'Exploit-DB'),
+        'active_exploits': sum(1 for t in all_threats if t.get('source') == 'Exploit-DB'),
+    }
+
     with open('cves.json', 'w', encoding='utf-8') as f:
-        json.dump({'last_updated': now.strftime('%Y-%m-%dT%H:%M:%S.000Z'), 'total_found': len(all_threats), 'cves': all_threats}, f)
-    print(f"--- Saved {len(all_threats)} threats ---")
+        json.dump({
+            'last_updated': now.strftime('%Y-%m-%dT%H:%M:%S.000Z'),
+            'total_found': len(all_threats),
+            'stats': stats,
+            'cves': all_threats
+        }, f)
+    print(f"--- Saved {len(all_threats)} threats (Critical MTS80+: {stats['critical_mts80']}, CISA KEV: {stats['cisa_kev']}) ---")
 
 if __name__ == "__main__":
     main()

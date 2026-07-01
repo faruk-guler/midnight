@@ -41,7 +41,7 @@
                     <button class="nav-btn" data-tab="about"><i class="ph ph-info"></i> About</button>
                 </nav>
 
-                <div class="status-bar"
+                <div class="status-bar header-status"
                     style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; justify-content: center;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <div
@@ -93,18 +93,20 @@
                 <div class="controls glass-panel"
                     style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 41, 59, 0.8); border-radius: 8px; margin-bottom: 1rem; padding: 1rem;">
                     <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                        <div class="search-box" style="flex: 1; min-width: 300px; position: relative;">
+                        <div class="search-box" style="flex: 1; min-width: 200px; position: relative;">
                             <input type="text" id="search-input"
-                                placeholder="Search by CVE ID, vendor, product or keyword..."
+                                placeholder="Search CVE ID, vendor, keyword... (score:>=9.0 | mts:>=80 | vendor:microsoft)"
                                 style="width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 0.8rem 1rem; color: #e2e8f0; font-family: 'Courier New', Courier, monospace; outline: none;">
                         </div>
-                        <div class="filter-group" style="display: flex; gap: 0.5rem; align-items: center;">
+                        <div class="filter-group" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                             <button class="filter-btn active" data-severity="all"
                                 style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #e2e8f0; cursor: pointer;">ALL</button>
-                            <button class="filter-btn" data-severity="CRITICAL"
+                            <button class="filter-btn critical-btn" data-severity="CRITICAL"
                                 style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.1); color: #fda4af; cursor: pointer;">CRITICAL</button>
-                            <button class="filter-btn" data-severity="HIGH"
+                            <button class="filter-btn high-btn" data-severity="HIGH"
                                 style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(249, 115, 22, 0.3); background: rgba(249, 115, 22, 0.1); color: #fdba74; cursor: pointer;">HIGH</button>
+                            <button class="filter-btn medium-btn" data-severity="MEDIUM"
+                                style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(234, 179, 8, 0.3); background: rgba(234, 179, 8, 0.07); color: #fde68a; cursor: pointer;">MEDIUM</button>
                             <button id="clear-search-btn"
                                 style="font-family: 'Courier New', Courier, monospace; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #94a3b8; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;"><i
                                     class="ph ph-x-circle"></i> CLEAR</button>
@@ -216,12 +218,12 @@
                         <a href="https://kb.cert.org/vuls" target="_blank" class="source-link" style="color:#c4b5fd;border-color:rgba(196,181,253,0.3);"><i class="ph ph-arrow-square-out"></i> kb.cert.org/vuls</a>
                     </div>
                     <div class="source-card">
-                        <div class="source-card-top"><div class="source-icon" style="background:rgba(45,212,191,0.1);border-color:rgba(45,212,191,0.3);"><i class="ph ph-shield-checkered" style="color:#2dd4bf;"></i></div><span class="source-type-tag" style="color:#2dd4bf;border-color:rgba(45,212,191,0.3);background:rgba(45,212,191,0.1);">RSS Feed</span></div>
-                        <h3 class="source-name">USOM &mdash; TR-CERT</h3>
-                        <p class="source-desc">Turkey's National Cyber Incident Response Center (BTK/USOM). Feed is pulled from <code style="color:#2dd4bf;background:rgba(45,212,191,0.08);padding:1px 4px;border-radius:3px;">usom.gov.tr</code>. Advisory detail pages are served via <code style="color:#2dd4bf;background:rgba(45,212,191,0.08);padding:1px 4px;border-radius:3px;">siberguvenlik.gov.tr</code> (the unified national cybersecurity portal).</p>
-                        <div class="source-tags"><span>TR National CERT</span><span>Threat Advisories</span><span>BTK / ICTA</span></div>
+                        <div class="source-card-top"><div class="source-icon" style="background:rgba(45,212,191,0.1);border-color:rgba(45,212,191,0.3);"><i class="ph ph-shield-checkered" style="color:#2dd4bf;"></i></div><span class="source-type-tag" style="color:#2dd4bf;border-color:rgba(45,212,191,0.3);background:rgba(45,212,191,0.1);">REST API</span></div>
+                        <h3 class="source-name">TR-CERT &mdash; Cybersecurity Directorate</h3>
+                        <p class="source-desc">Official REST API of the Cybersecurity Directorate of Turkey (OpenAPI v1.1, no authentication required). All USOM functions were transferred to this agency by Law No. 7545. Uses <code style="color:#2dd4bf;background:rgba(45,212,191,0.08);padding:1px 4px;border-radius:3px;">/api/announcement</code> and <code style="color:#2dd4bf;background:rgba(45,212,191,0.08);padding:1px 4px;border-radius:3px;">/api/incident</code> endpoints.</p>
+                        <div class="source-tags"><span>TR National CERT</span><span>Security Advisories</span><span>SGB</span></div>
                         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
-                            <a href="https://www.usom.gov.tr/bildirim/" target="_blank" class="source-link" style="color:#2dd4bf;border-color:rgba(45,212,191,0.3);flex:1;justify-content:center;"><i class="ph ph-rss"></i> usom.gov.tr</a>
+                            <a href="https://siberguvenlik.gov.tr/api/" target="_blank" class="source-link" style="color:#2dd4bf;border-color:rgba(45,212,191,0.3);flex:1;justify-content:center;"><i class="ph ph-code"></i> API Docs</a>
                             <a href="https://siberguvenlik.gov.tr/guvenlik-bildirimleri/" target="_blank" class="source-link" style="color:#2dd4bf;border-color:rgba(45,212,191,0.3);flex:1;justify-content:center;"><i class="ph ph-arrow-square-out"></i> siberguvenlik.gov.tr</a>
                         </div>
                     </div>
@@ -261,10 +263,12 @@
 
                 <!-- Tool Features -->
                 <div>
-                    <h2
-                        style="color: #c4b5fd; margin-bottom: 1.5rem; font-size: 2.2rem; border-bottom: 1px solid rgba(139, 92, 246, 0.3); padding-bottom: 1rem;">
-                        Midnight CTI <span style="font-size: 1.2rem; color: #94a3b8; font-weight: 400;">v2.2
-                            Elite</span></h2>
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(139, 92, 246, 0.3); padding-bottom: 1rem; flex-wrap: wrap;">
+                        <img src="image/midnight-logo.png" alt="Midnight Logo" style="height: 60px; width: auto; filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.4));">
+                        <h2 style="color: #c4b5fd; font-size: 2.2rem; margin: 0; font-family: 'Outfit', sans-serif; line-height: 1.2;">
+                            Midnight CTI <span style="font-size: 1.2rem; color: #94a3b8; font-weight: 400; display: block; md-display: inline; margin-top: 2px;">v2.2 Elite</span>
+                        </h2>
+                    </div>
                     <p style="font-size: 1.1rem; line-height: 1.7; margin-bottom: 2.5rem; color: #cbd5e1;">This platform
                         unifies global cyber threat intelligence (CTI) into a single dashboard, allowing you to
                         instantly analyze the most critical vulnerabilities.</p>
